@@ -3,6 +3,8 @@ let heartBeatRate = 5000;
 let pubnub;
 let appChannel = "johns_pi_channel";
 
+sendEvent('get_user_token');
+
 function time()
 {
     let d = new Date();
@@ -95,4 +97,38 @@ function logout()
     location.replace("/logout");
 }
 
+function grantAccess(ab)
+{
+    let userId = ab.id.split("-")[2];
+    let readState = document.getElementById("read-user-"+userId).checked;
+    let writeState = document.getElementById("write-user-"+userId).checked;
+    console.log("grant-"+userId+"-"+readState+"-"+writeState);
+    sendEvent("grant-"+userId+"-"+readState+"-"+writeState);
+}
+
+
+function sendEvent(value)
+{
+    fetch(value,
+    {
+        method:"POST",
+    })
+    .then(response => response.json())
+    .then(responseJson => {
+        console.log(responseJson);
+        if(responseJson.hasOwnProperty('token'))
+        {
+            pubnub.setToken(responseJson.token);
+            pubnub.setCipherKey(responseJson.cipher_key);
+            pubnub.setUUID(responseJson.uuid);
+            subscribe();
+        }
+    });
+}
+
+
+function subscribe()
+{
+    pubnub.subscription.subscribe();
+}
 

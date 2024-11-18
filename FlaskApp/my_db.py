@@ -101,3 +101,17 @@ def get_all_logged_in_users():
         online_users["users"].append([row.name, row.user_id, read, write])
     return online_users
 
+
+def add_user_permission(user_id, read, write):
+    row = get_user_row_if_exists(user_id)
+    if row is not False:
+        if read=="true":
+            row.read_access=1
+        elif read=="false":
+            row.read_access=0
+        if write=="true":
+            row.write_access=1
+        elif write=="false":
+            row.write_access=0
+        db.session.commit()
+

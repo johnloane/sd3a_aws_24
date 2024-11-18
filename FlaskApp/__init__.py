@@ -6,7 +6,7 @@ import os
 import pathlib
 
 import requests
-from . import my_db
+from . import my_db, pb
 
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, session, abort, redirect, request, render_template, flash
@@ -111,6 +111,46 @@ def keep_alive():
     data["keep_alive"] = keep_alive_count
     parsed_json = json.dumps(data)
     return str(parsed_json)
+
+
+@app.route('/grant-<user_id>-<read>-<write>', methods=["POST"])
+def grant_access(user_id, read, write):
+    if session.get('google_id'):
+        if session['google_id'] == config.get("GOOGLE_ADMIN_ID"):
+            print(f"Admin granting {user_id}-{read}-{write}")
+            my_db.add_user_permission(user_id, read, write)
+            if read=="true" and write=="true":
+                token = pb.grant_read_and_write_access(user_id)
+                my_db.add_token(user_id, token)
+                access_response={'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id}
+                return json.dumps(access_response)
+            elif read=="true" and write=="false":
+                token = pb.grant_read_access(user_id)
+                my_db.add_token(user_id, token)
+                access_response={'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id}
+                return json.dumps(access_response)
+            elif read=="false" and write=="true":
+                token = pb.grant_write_access(user_id)
+                my_db.add_token(user_id, token)
+                access_response={'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id}
+                return json.dumps(access_response)
+            else:
+                access_response={'token':123, 'cipher_key':pb.cipher_key, 'uuid':user_id}
+                return json.dumps(access_response)
+        else:
+            print("Non admin attempting to grant privileges")
+            return json.dumps({"access":"denied"})
+        
+
+@app.route('/get_user_token', methods=['POST'])
+def get_user_token():
+    user_id = session['google_id']
+    token = my_db.get_token(user_id)
+    if token is not None:
+        token = get_or_refresh(token)
+        token_response = {'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id}
+    else:
+        token_response = {'token':123, 'cipher_key':pb.cipher_key, 'uuid':user_id}
 
 
 if __name__ == "__main__":
