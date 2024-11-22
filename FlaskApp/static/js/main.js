@@ -50,9 +50,9 @@ function handleClick(cb)
 
 const setupPubNub = () => {
     pubnub = new PubNub({
-        publishKey: 'your_publish_key',
-        subscribeKey: 'your_subscribe_key',
-        userId: "your_user_id",
+        publishKey: 'pub-c-6ce775ac-3b15-47e0-937b-e5bd7cf6c79d',
+        subscribeKey: 'sub-c-6eb23377-44fd-4c6e-b456-974c422b6cc7',
+        userId: "john-123",
     });
     //create a channel
     const channel = pubnub.channel(appChannel);
@@ -119,7 +119,7 @@ function sendEvent(value)
         if(responseJson.hasOwnProperty('token'))
         {
             pubnub.setToken(responseJson.token);
-            pubnub.setCipherKey(responseJson.cipher_key);
+            //pubnub.setCipherKey(responseJson.cipher_key);
             pubnub.setUUID(responseJson.uuid);
             subscribe();
         }

@@ -7,6 +7,7 @@ import pathlib
 
 import requests
 from . import my_db, pb
+from pymongo import MongoClient
 
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, session, abort, redirect, request, render_template, flash
@@ -138,19 +139,57 @@ def grant_access(user_id, read, write):
                 access_response={'token':123, 'cipher_key':pb.cipher_key, 'uuid':user_id}
                 return json.dumps(access_response)
         else:
-            print("Non admin attempting to grant privileges")
-            return json.dumps({"access":"denied"})
-        
+            print(f"Non admin attempting to grant privileges {user_id}-{read}-{write}")
+            my_db.add_user_permission(user_id, read, write)
+            token = my_db.get_token(user_id)
+            if token is not None:
+                timestamp, ttl, user_id, read, write = pb.parse_token(token)
+                current_time = time.time
+                if(timestamp + (ttl*60)) - current_time > 0:
+                    print("Token is still valid")
+                    access_response={'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id} 
+                    return json.dumps(access_response)
+                else:
+                    print("Token refresh needed")
+                    if read and write:
+                        token = pb.grant_read_write_access(user_id)
+                        my_db.add_token(user_id, token)
+                        access_response={'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id} 
+                        return json.dumps(access_response)
+                    elif read:
+                        token = pb.grant_read_access(user_id)
+                        my_db.add_token(user_id, token)
+                        access_response={'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id} 
+                        return json.dumps(access_response)
+                    elif read:
+                        token = pb.gran_write_access(user_id)
+                        my_db.add_token(user_id, token)
+                        access_response={'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id} 
+                        return json.dumps(access_response)
+                    else:
+                        access_response={'token':123, 'cipher_key':pb.cipher_key, 'uuid':user_id}
+                        return json.dumps(access_response)
+  
 
 @app.route('/get_user_token', methods=['POST'])
 def get_user_token():
     user_id = session['google_id']
     token = my_db.get_token(user_id)
     if token is not None:
-        token = get_or_refresh(token)
+        token = get_or_refresh_token(token)
         token_response = {'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id}
     else:
         token_response = {'token':123, 'cipher_key':pb.cipher_key, 'uuid':user_id}
+
+
+def get_or_refresh_token(token):
+    timestamp, ttl, uuid, read, write = pb.parse_token(token)
+    current_time = time.time()
+    if(timestamp+(ttl*60)) - current_time > 0:
+        return token
+    else:
+        # The token has expired
+        return grant_access(uuid, read, write)
 
 
 if __name__ == "__main__":

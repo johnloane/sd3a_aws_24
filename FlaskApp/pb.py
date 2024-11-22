@@ -5,14 +5,14 @@ from pubnub.models.consumer.v3.group import Group
 from pubnub.models.consumer.v3.uuid import UUID
 from .config import config
 
-cipher_key = config.get("PUBNUB_CIPHER_KEY")
+#cipher_key = config.get("PUBNUB_CIPHER_KEY")
 
 pn_config = PNConfiguration()
 pn_config.publish_key = config.get("PUBNUB_PUBLISH_KEY")
 pn_config.subscribe_key = config.get("PUBNUB_SUBSCRIBE_KEY")
 pn_config.uuid = config.get("PUBNUB_UUID")
 pn_config.secret_key = config.get("PUBNUB_SECRET_KEY")
-pn_config.cipher_key = cipher_key
+#pn_config.cipher_key = cipher_key
 
 pubnub = PubNub(pn_config)
 
