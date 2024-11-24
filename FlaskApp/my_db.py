@@ -7,7 +7,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(30))
     user_id = db.Column(db.String(21))
-    token = db.Column(db.String(255))
+    token = db.Column(db.String(260))
     login = db.Column(db.Integer)
     read_access = db.Column(db.Integer)
     write_access = db.Column(db.Integer)

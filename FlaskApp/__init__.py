@@ -180,6 +180,7 @@ def get_user_token():
         token_response = {'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id}
     else:
         token_response = {'token':123, 'cipher_key':pb.cipher_key, 'uuid':user_id}
+    return json.dumps(token_response)
 
 
 def get_or_refresh_token(token):

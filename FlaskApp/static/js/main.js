@@ -52,7 +52,7 @@ const setupPubNub = () => {
     pubnub = new PubNub({
         publishKey: 'pub-c-6ce775ac-3b15-47e0-937b-e5bd7cf6c79d',
         subscribeKey: 'sub-c-6eb23377-44fd-4c6e-b456-974c422b6cc7',
-        userId: "john-123",
+        userId: "test-123",
     });
     //create a channel
     const channel = pubnub.channel(appChannel);
@@ -118,8 +118,9 @@ function sendEvent(value)
         console.log(responseJson);
         if(responseJson.hasOwnProperty('token'))
         {
-            pubnub.setToken(responseJson.token);
-            //pubnub.setCipherKey(responseJson.cipher_key);
+            pbToken = responseJson.token;
+            pubnub.setToken(pbToken);
+            pubnub.setCipherKey(responseJson.cipher_key);
             pubnub.setUUID(responseJson.uuid);
             subscribe();
         }
@@ -129,6 +130,11 @@ function sendEvent(value)
 
 function subscribe()
 {
-    pubnub.subscription.subscribe();
+    console.log("Trying to subscribe with token");
+	//pubnub.subscribe({channels:[appChannel]});
+    const channel = pubnub.channel(appChannel);
+    //create a subscription
+    const subscription = channel.subscription();
+    subscription.subscribe();
 }
 
