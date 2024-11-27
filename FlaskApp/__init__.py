@@ -136,6 +136,8 @@ def grant_access(user_id, read, write):
                 access_response={'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id}
                 return json.dumps(access_response)
             else:
+                #Remove any existing token from the database
+                my_db.delete_revoked_token(user_id)
                 access_response={'token':123, 'cipher_key':pb.cipher_key, 'uuid':user_id}
                 return json.dumps(access_response)
         else:

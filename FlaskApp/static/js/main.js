@@ -82,6 +82,7 @@ const publishMessage = async(message) => {
 
 function handleMessage(message)
 {
+    console.log(message);
     if(message == '"Motion":"Yes"')
     {
         document.getElementById("motion_id").innerHTML = "Yes";

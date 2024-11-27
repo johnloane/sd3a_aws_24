@@ -71,6 +71,14 @@ def get_token(user_id):
         print("User with id: " + user_id + " doesn't exist")
 
 
+def delete_revoked_token(user_id):
+    row = get_user_row_if_exists(user_id)
+    if row is not False:
+        row.token = None
+        db.session.commit()
+        
+
+
 def view_all():
     all_rows = User.query.all()
     print_results(all_rows)
