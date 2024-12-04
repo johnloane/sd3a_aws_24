@@ -1,9 +1,19 @@
 let aliveSecond = 0;
-let heartBeatRate = 5000;
+let heartBeatRate = 100000;
 let pubnub;
 let appChannel = "johns_pi_channel";
+let ttl = 5;
 
-sendEvent('get_user_token');
+
+//sendEvent('get_user_token');
+
+function refresh_token()
+{
+    sendEvent('get_user_token');
+    let refresh_time = (ttl-1)*60*1000;
+    console.log(refresh_time);
+    setTimeout('refresh_token()', refresh_time);
+}
 
 function time()
 {
@@ -53,6 +63,7 @@ const setupPubNub = () => {
         publishKey: 'pub-c-6ce775ac-3b15-47e0-937b-e5bd7cf6c79d',
         subscribeKey: 'sub-c-6eb23377-44fd-4c6e-b456-974c422b6cc7',
         userId: "test-123",
+        cipherKey: "secret-123"
     });
     //create a channel
     const channel = pubnub.channel(appChannel);
@@ -121,7 +132,8 @@ function sendEvent(value)
         {
             pbToken = responseJson.token;
             pubnub.setToken(pbToken);
-            pubnub.setCipherKey(responseJson.cipher_key);
+            console.log("Cipher Key: " + responseJson.cipher_key);
+            //pubnub.setCipherKey(responseJson.cipher_key);
             pubnub.setUUID(responseJson.uuid);
             subscribe();
         }

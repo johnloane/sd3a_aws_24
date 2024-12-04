@@ -42,7 +42,7 @@ def grant_read_and_write_access(user_id):
     envelope = pubnub.grant_token() \
     .channels([Channel.id("johns_pi_channel").read().write()]) \
     .authorized_uuid(user_id) \
-    .ttl(60) \
+    .ttl(5) \
     .sync()
     return envelope.result.token
 
