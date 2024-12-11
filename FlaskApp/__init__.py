@@ -120,7 +120,12 @@ def grant_access(user_id, read, write):
         if session['google_id'] == config.get("GOOGLE_ADMIN_ID"):
             print(f"Admin granting {user_id}-{read}-{write}")
             my_db.add_user_permission(user_id, read, write)
-            if (read=="true" or read==True) and (write=="true" or write==True):
+            if read=="true"  and write=="true":
+                token = pb.grant_read_and_write_access(user_id)
+                my_db.add_token(user_id, token)
+                access_response={'token':token, 'cipher_key':pb.cipher_key, 'uuid':user_id}
+                return json.dumps(access_response)
+            elif read==True  and write==True:
                 token = pb.grant_read_and_write_access(user_id)
                 my_db.add_token(user_id, token)
                 return token

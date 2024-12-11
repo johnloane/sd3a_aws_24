@@ -55,6 +55,10 @@ function handleClick(cb)
     {
         value = "off";
     }
+    const cryptoModule = PubNub.CryptoModule.legacyCryptoModule({
+        cipherKey: "secret-123"
+    });
+    console.log(cryptoModule.encrypt('{"buzzer":value}'))
     publishMessage({"buzzer" : value})
 }
 
@@ -62,8 +66,8 @@ const setupPubNub = () => {
     pubnub = new PubNub({
         publishKey: 'pub-c-6ce775ac-3b15-47e0-937b-e5bd7cf6c79d',
         subscribeKey: 'sub-c-6eb23377-44fd-4c6e-b456-974c422b6cc7',
-        userId: "test-123",
-        cipherKey: "secret-123"
+        cryptoModule: PubNub.CryptoModule.aesCbcCryptoModule({cipherKey: 'secret-123'}),
+        userId: "test-123"
     });
     //create a channel
     const channel = pubnub.channel(appChannel);
@@ -92,7 +96,7 @@ const publishMessage = async(message) => {
 };
 
 function handleMessage(message)
-{
+{ 
     console.log(message);
     if(message == '"Motion":"Yes"')
     {
